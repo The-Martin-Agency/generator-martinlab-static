@@ -117,6 +117,23 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
     this.template('views/_index.html', 'build/index.html');
   },
 
+  bootstrapFiles:function(){
+    if(!this.shouldUseBootstrap && !this.format){
+      //move on if we shouldn't use bootstrap
+      return;
+    }
+
+    // map format -> package name
+    var packages = {
+      css: 'bootstrap.css',
+      sass: 'sass-bootstrap',
+      less: 'bootstrap',
+      stylus: 'bootstrap-stylus'
+    };
+
+    this.bowerInstall(packages[this.format], { save: true });
+  },
+
   projectfiles: function () {
     this.copy('editorconfig', '.editorconfig');
     this.copy('jshintrc', '.jshintrc');
