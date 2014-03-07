@@ -113,6 +113,7 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
     this.copy('_package.json', 'package.json');
     this.copy('_bower.json', 'bower.json');
     this.copy('_server.js', 'server.js');
+    this.template('_gulpfile.js', 'gulpfile.js');
     this.template('views/_index.html', 'build/index.html');
   },
 
