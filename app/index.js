@@ -105,10 +105,32 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
 
   },
 
+  useJquery:function(){
+    var done = this.async();
+
+    var prompts = [{
+      type: 'confirm',
+      name: 'shouldUseJQuery',
+      message: 'Do you want to use JQuery?',
+      default: true
+    }];
+
+    this.prompt(prompts, function (props) {
+      this.shouldUseJQuery = props.shouldUseJQuery;
+
+      done();
+    }.bind(this));
+
+  },
+
   app: function () {
     this.mkdir('source');
     this.mkdir('source/img');
     this.mkdir('source/js');
+
+    if(this.format){
+      this.mkdir('source/'+this.format);
+    }
 
     this.copy('_package.json', 'package.json');
     this.copy('_bower.json', 'bower.json');
