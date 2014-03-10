@@ -3,7 +3,11 @@ var util = require('util');
 var path = require('path');
 var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
+var shell = require('shelljs');
 
+//used later
+var git_user,
+    git_email;
 
 var MartinlabStaticGenerator = yeoman.generators.Base.extend({
   init: function () {
@@ -18,7 +22,7 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
       if (!this.options['skip-install']) {
         this.installDependencies();
       }
-      this.format = options.format;
+      if(this.options['format']) this.format = this.options['format'];
     });
   },
 
@@ -60,6 +64,46 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
 
       done();
     }.bind(this));
+  },
+
+  getUserName:function(){
+    var done = this.async();
+    git_user = shell.exec('git config --get user.name', { silent: true }).output.trim();
+
+    git_email = shell.exec('git config --get user.email', { silent: true }).output.trim();
+
+  var prompts = [{
+      name: 'userName',
+      message: 'Github user name?',
+    default:git_user
+    }];
+    this.prompt(prompts, function (props) {
+      this.user = props.userName;
+      this.site = "https://github.com/" + this.user;
+
+      done();
+    }.bind(this));
+  },
+
+  getUserEmail:function(){
+
+    if(this.user === git_user){
+      this.email = git_email;
+
+    }else{
+      var done = this.async();
+      var prompts = [{
+          name: 'email',
+          message: 'Email address?',
+          default:"n/a"
+        }];
+        this.prompt(prompts, function (props) {
+          this.email = props.email;
+
+          done();
+        }.bind(this));
+    }
+
   },
 
   useBootstrap: function () {
@@ -136,7 +180,13 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
     this.copy('_bower.json', 'bower.json');
     this.copy('_server.js', 'server.js');
     this.template('_gulpfile.js', 'gulpfile.js');
-    this.template('views/_index.html', 'build/index.html');
+    this.template('_index.html', 'source/index.html');
+  },
+
+  projectfiles: function () {
+    this.copy('editorconfig', '.editorconfig');
+    this.copy('jshintrc', '.jshintrc');
+    this.copy('.bowerrc', '.bowerrc');
   },
 
   bootstrapFiles:function(){
@@ -157,14 +207,11 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
   },
   jqueryInstall:function(){
     if(this.shouldUseJQuery){
-      this.bowerInstall(packages['jquery'], { save: true });
+      this.bowerInstall('jquery', { save: true });
     }
-  },
-
-  projectfiles: function () {
-    this.copy('editorconfig', '.editorconfig');
-    this.copy('jshintrc', '.jshintrc');
   }
+
+
 });
 
 module.exports = MartinlabStaticGenerator;
