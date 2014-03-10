@@ -155,6 +155,11 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
 
     this.bowerInstall(packages[this.format], { save: true });
   },
+  jqueryInstall:function(){
+    if(this.shouldUseJQuery){
+      this.bowerInstall(packages['jquery'], { save: true });
+    }
+  },
 
   projectfiles: function () {
     this.copy('editorconfig', '.editorconfig');
