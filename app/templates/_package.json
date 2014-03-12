@@ -13,7 +13,7 @@
     "gulp-concat": "^2.1.7",
     "gulp-clean": "^0.2.4",
     "gulp-livereload": "^1.2.0",
-    "gulp-less": "^1.2.1",
+    <%if(format === 'less'){%>"gulp-less": "^1.2.1",<%}%>
     "gulp-load-plugins": "^0.3.0",
     "path": "^0.4.9",
     "gulp-uncss": "^0.3.0",
