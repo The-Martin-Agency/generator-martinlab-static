@@ -1,10 +1,10 @@
 {
   "name": "generator-martinlab-static",
   "version": "0.0.0",
-  "description": "Yeoman generator",
+  "description": "Yeoman generator for static web projects",
   "license": "MIT",
-  "main": "app/index.js",
-  "repository": "individual11/generator-martinlab-static",
+  "main": "index.js",
+  "repository": "https://github.com/The-Martin-Agency/generator-martinlab-static",
   "author": {
     "name": "David Vogeleer",
     "email": "david@individual11.com",
@@ -13,12 +13,6 @@
   "engines": {
     "node": ">=0.10.0"
   },
-  "scripts": {
-    "test": "mocha"
-  },
-  "files": [
-    "app"
-  ],
   "keywords": [
     "yeoman-generator"
   ],
