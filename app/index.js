@@ -131,6 +131,11 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
       // Skip if already set.
       return;
     }
+
+    // TODO using LESS temporarily.. will go back and make sure others work
+    this.format = 'less';
+    return;
+
     var done = this.async();
 
     var formats = ['css', 'sass', 'less', 'stylus'];
