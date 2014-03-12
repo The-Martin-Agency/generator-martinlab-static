@@ -18,11 +18,13 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
       type: String
     });
 
+    if(this.options['format']) this.format = this.options['format'];
+
     this.on('end', function () {
       if (!this.options['skip-install']) {
         this.installDependencies();
       }
-      if(this.options['format']) this.format = this.options['format'];
+
     });
   },
 
@@ -206,9 +208,10 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
     this.mkdir('source');
     this.mkdir('source/img');
     this.mkdir('source/js');
+    this.template('_app.js', 'source/js/app.js');
 
-    if(this.format){
-      this.mkdir('source/'+this.format);
+    if(this.format === 'less'){
+      this.copy('_main.less', 'source/less/main.less');
     }
 
     this.template('_package.json', 'package.json');
@@ -224,38 +227,33 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
     this.copy('.bowerrc', '.bowerrc');
   },
 
-  bootstrapFiles:function(){
-    if(!this.shouldUseBootstrap && !this.format){
-      //move on if we shouldn't use bootstrap
-      return;
+  installAllBower:function(){
+    var packagesToInstall = new Array();
+    if(this.format){
+      // map format -> package name
+      var bootstrap_packages = {
+        css: 'bootstrap.css',
+        sass: 'sass-bootstrap',
+        less: 'bootstrap',
+        stylus: 'bootstrap-stylus'
+      };
+      packagesToInstall.push(bootstrap_packages[this.format]);
+
     }
 
-    // map format -> package name
-    var packages = {
-      css: 'bootstrap.css',
-      sass: 'sass-bootstrap',
-      less: 'bootstrap',
-      stylus: 'bootstrap-stylus'
-    };
+    var js_libs = [
+                    {option:'includeJquery',pkg:'jquery'},
+                    {option:'includePath', pkg:'pathjs'},
+                    {option:'includeUnderscore', pkg:'underscore'},
+                    {option:'includeModernizr', pkg:'modernizr'}
+                  ];
+    for(var i = 0; i < js_libs.length; i++){
+      if(this[js_libs[i].option]) packagesToInstall.push(js_libs[i].pkg);
+    }
 
-    this.bowerInstall(packages[this.format], { save: true });
-  },
-  bowerInstann:function(){
-    if(this.includeJquery){
-      this.bowerInstall('jquery', { save: true });
-    }
-    if(this.includePath){
-      this.bowerInstall('pathjs', { save: true });
-    }
-    if(this.includeUnderscore){
-      this.bowerInstall('underscore', { save: true });
-    }
-    if(this.includeModernizr){
-      this.bowerInstall('modernizr', {save:true});
-    }
+    this.bowerInstall(packagesToInstall, { save: true });
+
   }
-
-
 });
 
 module.exports = MartinlabStaticGenerator;
