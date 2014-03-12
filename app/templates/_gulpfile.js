@@ -9,7 +9,9 @@ var livereload = require('gulp-livereload');
 
 var paths = {
   scripts: ['source/js/**/*.js'],
-  less:   'source/less/**/*.less',
+  <%if(format === 'less'){%>less:   'source/less/**/*.less',<%}%>
+  <%if(format === 'sass'){%>less:   'source/sass/**/*.sass',<%}%>
+  <%if(format === 'stylus'){%>less:   'source/stylus/**/*.stylus',<%}%>
   html:   'source/*.html',
   img:    'source/img/**/*'
 };
