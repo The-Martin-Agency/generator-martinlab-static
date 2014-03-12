@@ -68,14 +68,15 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
 
   getUserName:function(){
     var done = this.async();
-    git_user = shell.exec('git config --get user.name', { silent: true }).output.trim();
 
+    //pull some stuff from local git
+    git_user = shell.exec('git config --get user.name', { silent: true }).output.trim();
     git_email = shell.exec('git config --get user.email', { silent: true }).output.trim();
 
-  var prompts = [{
+    var prompts = [{
       name: 'userName',
       message: 'Github user name?',
-    default:git_user
+      default:git_user
     }];
     this.prompt(prompts, function (props) {
       this.user = props.userName;
@@ -88,8 +89,7 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
   getUserEmail:function(){
 
     if(this.user === git_user){
-      this.email = git_email;
-
+      this.email = git_email;//if the username matches git, we can use the git email
     }else{
       var done = this.async();
       var prompts = [{
@@ -149,18 +149,45 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
 
   },
 
-  useJquery:function(){
+  getLibs:function(){
     var done = this.async();
 
     var prompts = [{
-      type: 'confirm',
-      name: 'shouldUseJQuery',
-      message: 'Do you want to use JQuery?',
-      default: true
+      type:'checkbox',
+      name:'libs',
+      message:'Which libs do you want?',
+      choices:[
+        {
+          name:'jQuery',
+          value:'includeJquery',
+          checked:true
+        },
+        {
+          name:'Modernizr',
+          value:'includeModernizr'
+
+        },
+        {
+          name:'Underscore',
+          value:'includeUnderscore'
+        },
+        {
+          name:'Path',
+          value:'includePath'
+        }
+      ]
     }];
 
-    this.prompt(prompts, function (props) {
-      this.shouldUseJQuery = props.shouldUseJQuery;
+    this.prompt(prompts, function (answers) {
+      var libs = answers.libs;
+
+      function includeLibrary(lib) { return libs.indexOf(lib) !== -1; }
+
+      // manually deal with the response, get back and store the results.
+      this.includeJquery = includeLibrary('includeJquery');
+      this.includeModernizr = includeLibrary('includeModernizr');
+      this.includeUnderscore = includeLibrary('includeUnderscore');
+      this.includePath = includeLibrary('includePath');
 
       done();
     }.bind(this));
@@ -168,6 +195,9 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
   },
 
   app: function () {
+    //set any last variables we need from info above
+    this.author = this.user + " <" + this.email + ">";
+
     this.mkdir('source');
     this.mkdir('source/img');
     this.mkdir('source/js');
@@ -176,9 +206,9 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
       this.mkdir('source/'+this.format);
     }
 
-    this.copy('_package.json', 'package.json');
+    this.template('_package.json', 'package.json');
     this.copy('_bower.json', 'bower.json');
-    this.copy('_server.js', 'server.js');
+    this.template('_server.js', 'server.js');
     this.template('_gulpfile.js', 'gulpfile.js');
     this.template('_index.html', 'source/index.html');
   },
@@ -205,9 +235,18 @@ var MartinlabStaticGenerator = yeoman.generators.Base.extend({
 
     this.bowerInstall(packages[this.format], { save: true });
   },
-  jqueryInstall:function(){
-    if(this.shouldUseJQuery){
+  bowerInstann:function(){
+    if(this.includeJquery){
       this.bowerInstall('jquery', { save: true });
+    }
+    if(this.includePath){
+      this.bowerInstall('pathjs', { save: true });
+    }
+    if(this.includeUnderscore){
+      this.bowerInstall('underscore', { save: true });
+    }
+    if(this.includeModernizr){
+      this.bowerInstall('modernizr', {save:true});
     }
   }
 
