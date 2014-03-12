@@ -8,10 +8,10 @@ var port = <%= runningPortNumber %>;
 var livereload = require('gulp-livereload');
 
 var paths = {
-  scripts: ['source/js/**/*.js'],
-  <%if(format === 'less'){%>less:   'source/less/**/*.less',<%}%>
-  <%if(format === 'sass'){%>less:   'source/sass/**/*.sass',<%}%>
-  <%if(format === 'stylus'){%>less:   'source/stylus/**/*.stylus',<%}%>
+  scripts: [<%if(includeUnderscore){ %>'source/bower_components/underscore/underscore.js',<%}%><%if(includePath){ %>'source/bower_components/pathjs/path.min.js',<%}%>'source/js/**/*.js'],
+  <%if(format === 'less'){%>styles:   ['source/bower_components/bootstrap/less/bootstrap.less', 'source/less/**/*.less'],<%}%>
+  <%if(format === 'sass'){%>styles:   'source/sass/**/*.sass',<%}%>
+  <%if(format === 'stylus'){%>styles:   'source/stylus/**/*.stylus',<%}%>
   html:   'source/*.html',
   img:    'source/img/**/*'
 };
@@ -19,39 +19,44 @@ var paths = {
 //to fully clean out the build folder
 gulp.task('clean', function(){
   return gulp.src('build/*', {read:false})
-      .pipe(plugins.clean())
-      .pipe(plugins.notify("Gulp Cleaned!"));
+      .pipe($.clean());
 });
 
 gulp.task('html', function() {
   return gulp.src(paths.html)
-      .pipe(gulp.dest('build/'))
-      .pipe(plugins.notify("Copied HTML"));
+      .pipe(gulp.dest('build/'));
 });
 
 <%if(includeJquery){ %>
 //just moving over the failsafe
 gulp.task('copyJquery', function(){
-  return gulp.src('source/public/bower_components/jquery/dist/jquery.min.js')
-             .pipe(gulp.dest('build/public/js'));
+  return gulp.src('source/bower_components/jquery/dist/jquery.min.js')
+             .pipe(gulp.dest('build/public/bower_components/'));
 });
 <% } %>
 
-// TODO add other 'includes' here for other libs.. make it more dynamic
+<%if(includeModernizr){ %>
+//just moving over the failsafe
+gulp.task('copyModernizr', function(){
+  return gulp.src('source/bower_components/modernizr/modernizr.js')
+             .pipe(gulp.dest('build/public/bower_components/'));
+});
+<% } %>
 
 
 <%if(format === 'less'){%>
 gulp.task('styles', function () {
-  return gulp.src(paths.less)
-    .pipe(plugins.less({
+  return gulp.src(paths.styles)
+    .pipe($.less({
       paths: [ path.join(__dirname, 'source/public/less/')]
     }))
+    .pipe($.concat('main.css'))
     .pipe(gulp.dest('build/public/css'));
 });
 <% }else if(format === 'sass'){ %>
 gulp.task('styles', function () {
   return gulp.src(paths.less)
-    .pipe(plugins.less({
+    .pipe($.less({
       paths: [ path.join(__dirname, 'source/public/less/')]
     }))
     .pipe(gulp.dest('build/public/css'));
@@ -59,7 +64,7 @@ gulp.task('styles', function () {
 <%}else if(format === 'stylus'){%>
 gulp.task('styles', function () {
   return gulp.src(paths.less)
-    .pipe(plugins.less({
+    .pipe($.less({
       paths: [ path.join(__dirname, 'source/public/less/')]
     }))
     .pipe(gulp.dest('build/public/css'));
@@ -70,40 +75,39 @@ gulp.task('styles', function () {
 gulp.task('scripts', function() {
   // Minify and copy all JavaScript (except vendor scripts)
   return gulp.src(paths.scripts)
-    .pipe(plugins.uglify())
-    .pipe(plugins.concat('app.min.js'))
+    .pipe($.uglify())
+    .pipe($.concat('app.min.js'))
     .pipe(gulp.dest('build/public/js'));
 });
 
 gulp.task('img', function(){
   gulp.src(paths.img)
-        .pipe(plugins.imagemin())
+        .pipe($.imagemin())
         .pipe(gulp.dest('build/public/img'));
 });
 
 gulp.task("url", function(){
   var options = {
-    url: "http://localhost:1337"
+    url: "http://localhost:" + port
   };
   gulp.src("build/index.html")
-      .pipe(plugins.open("", options));
+      .pipe($.open("", options));
 });
 
 gulp.task('server', function () {
-  plugins.nodemon({ script: 'server.js', watch:['server.js'], ignore: ['source/**/*', 'build/**/*'], env:{ 'NODE_ENV': 'development', 'PORT_NUMBER':1337 }})
+  $.nodemon({ script: 'server.js', watch:['server.js'], ignore: ['source/**/*', 'build/**/*'], env:{ 'NODE_ENV': 'development', 'PORT_NUMBER':port }})
 });
 
 gulp.task('livereload', function(){
   gulp.src('build/index.html')
-      .pipe(livereload())
-      .pipe(plugins.notify("Reloaded"));//notify action
+      .pipe(livereload());
 });
 
 gulp.task('watch', function(){
-  gulp.watch(paths.less, ['less', 'livereload']);
+  gulp.watch(paths.styles, ['styles', 'livereload']);
   gulp.watch(paths.html, ['html', 'livereload']);
   gulp.watch(paths.scripts, ['scripts', 'livereload']);
   gulp.watch(path.img, ['img', 'livereload']);
 });
 
-gulp.task('default', ['html','copyJquery', 'styles', 'scripts', 'img', 'watch', 'server', 'url']);
+gulp.task('default', ['html', <%if(includeJquery){ %>'copyJquery',<%}%><%if(includeModernizr){ %>'copyModernizr',<%}%>'styles', 'scripts', 'img', 'watch', 'server', 'url']);
