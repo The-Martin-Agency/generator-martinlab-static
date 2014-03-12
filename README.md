@@ -1,6 +1,6 @@
-# generator-martinlab-static [![Build Status](https://secure.travis-ci.org/individual11/generator-martinlab-static.png?branch=master)](https://travis-ci.org/individual11/generator-martinlab-static)
+# generator-martinlab-static 
 
-> [Yeoman](http://yeoman.io) generator
+ [Yeoman](http://yeoman.io) generator
 
 
 ## Getting Started
