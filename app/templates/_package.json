@@ -1,11 +1,26 @@
 {
   "name": "<%= _.slugify(projectName) %>",
-  "description":"",
+  "description":"<%= projectDescription %>",
   "main": "server.js",
-  "version": "0.0.0",
-  "repository": "",
+  "version": "0.0.1",
+  "repository": "<%= 'https://github.com/' + _.slugify(user)+'/' + _.slugify(projectName) %> ",
   "dependencies": {
     "express": "~3.4.6"
+  },
+  "devDependencies": {
+    "gulp": "^3.5.2",
+    "gulp-uglify": "^0.2.1",
+    "gulp-concat": "^2.1.7",
+    "gulp-clean": "^0.2.4",
+    "gulp-livereload": "^1.2.0",
+    "gulp-less": "^1.2.1",
+    "gulp-load-plugins": "^0.3.0",
+    "path": "^0.4.9",
+    "gulp-uncss": "^0.3.0",
+    "gulp-cleanhtml": "0.0.2",
+    "gulp-open": "^0.2.8",
+    "gulp-nodemon": "^1.0.0",
+    "gulp-imagemin": "^0.1.5"
   },
   "engines": {
     "node": ">=0.10.22"
